@@ -24,4 +24,21 @@
         android:layout_below="@+id/editText"
         android:layout_centerHorizontal="true" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_below="@+id/button_search"
+        android:text="Result"
+        android:textColor="#ffffff"
+        android:id="@+id/resultText"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:shadowColor="#000000"
+        android:shadowDx="0.0"
+        android:shadowDy="0.0"
+        android:shadowRadius="15.0"
+        android:maxLines = "16"
+        android:scrollbars = "vertical" />
+
 </RelativeLayout>

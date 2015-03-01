@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
         button.setTypeface(typeFaceBold);
         Animation fadeIn = new AlphaAnimation(0, 1);
         fadeIn.setInterpolator(new AccelerateInterpolator()); //add this
-        fadeIn.setDuration(2000);
+        fadeIn.setDuration(3000);
         button.startAnimation(fadeIn);
 
         // Adds click listener for the button

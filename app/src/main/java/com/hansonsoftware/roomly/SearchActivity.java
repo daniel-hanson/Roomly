@@ -1,18 +1,19 @@
 package com.hansonsoftware.roomly;
 
 import android.app.Activity;
-<<<<<<< HEAD
 import android.app.DownloadManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.widget.TextView;
 
 import com.factual.driver.Factual;
 import com.factual.driver.Query;
 import com.factual.driver.ReadResponse;
+import com.google.api.client.util.Lists;
 
 import java.util.List;
 import java.util.Map;
-=======
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
@@ -20,14 +21,50 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
->>>>>>> origin/master
 
 public class SearchActivity extends Activity {
 
-    protected Factual factual = new Factual("DEV-KEY", "DEV-SECRET");
+    protected Factual factual = new Factual("nFZWvaT09Uj5qXhO3nBHdMwofhCXlWICIZYuDyhg", "4P1MXQmWx90ciaw6JNAdBKixiLG2GOn1MWnLhgYG");
     private TextView resultText = null;
 
+    protected class FactualRetrievalTask extends AsyncTask<Query, Integer, List<ReadResponse>> {
+        @Override
+        protected List<ReadResponse> doInBackground(Query... params) {
+            List<ReadResponse> results = Lists.newArrayList();
+            for (Query q : params) {
+                results.add(factual.fetch("hotels-us", q));
+            }
+            return results;
+        }
 
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+        }
+
+        @Override
+        protected void onPostExecute(List<ReadResponse> responses) {
+            StringBuffer sb = new StringBuffer();
+            for (ReadResponse response : responses) {
+                for (Map<String, Object> restaurant : response.getData()) {
+                    String name = (String) restaurant.get("name");
+                    Integer lowest_price = (Integer) restaurant.get("lowest_price");
+                    Integer stars = (Integer) restaurant.get("stars");
+                    Boolean smoking = (Boolean) restaurant.get("smoking");
+                    String postcode = (String) restaurant.get("postcode");
+
+                    sb.append("Name: " + name + "\n" + "Lowest Price: " + lowest_price + "\n" + "Stars: " + stars + "\n" +
+                            "Smoking: " + smoking + "\n" + "Postcode: " + postcode + "\n");
+                    sb.append(System.getProperty("line.separator"));
+                }
+            }
+            resultText = (TextView) findViewById(R.id.resultText);
+
+            resultText.setText(sb.toString());
+
+            resultText.setMovementMethod(new ScrollingMovementMethod());
+        }
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,53 +83,24 @@ public class SearchActivity extends Activity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FactualRetrievalTask task = new FactualRetrievalTask();
+
                 TextView textView = (TextView) findViewById(R.id.editText);
                 String search = textView.getText().toString();
-                System.out.println(search);
+
+                Query query = new Query()
+                    .field("locality").equal(search)
+                    .sortAsc("lowest_price")
+                    .only("name", "lowest_price", "stars", "smoking", "postcode");
+
+                task.execute(query);
             }
         });
     }
 
 
 
-    protected Query querier(city){
-        query = new Query()
-                .field("locality").equal("city")
-                .sortAsc("$distance")
-                .only("name", "lowest_price","rating","smoking","pool")
-    }
 
-    protected class FactualRetrievalTask extends AsyncTask<Query, Integer, List<ReadResponse>> {
-        @Override
-        protected List<ReadResponse> doInBackground(Query... params) {
-            List<ReadResponse> results = Lists.newArrayList();
-            for (Query q : params) {
-                results.add(factual.fetch("restaurants-us", q));
-            }
-            return results;
-        }
 
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-        }
 
-        @Override
-        protected void onPostExecute(List<ReadResponse> responses) {
-            StringBuffer sb = new StringBuffer();
-            for (ReadResponse response : responses) {
-                for (Map<String, Object> restaurant : response.getData()) {
-                    String name = (String) restaurant.get("name");
-                    Integer low_price = (Integer) restaurant.get("lowest_price");
-                    Float rating = (Float) restaurant.get("rating");
-                    Boolean smoking = (Boolean) restaurant.get("smoking");
-                    String pool = (String) restaurant.get("pool");
-
-                    sb.append("Name:" + name + "Price" + low_price + "Rating" + rating + "Smoking" + smoking + "pool" +pool);
-                    sb.append(System.getProperty("line.separator"));
-                }
-            }
-            resultText.setText(sb.toString());
-        }
-
-    }
 }
